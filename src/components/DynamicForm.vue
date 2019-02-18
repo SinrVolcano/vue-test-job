@@ -22,15 +22,16 @@
                 v-on:click="fieldAction(form.fields[fieldName].behavior)"
                 v-show="form.fields[fieldName].visibility === undefined || form.fields[fieldName].visibility"
               >
-                <option value="" default></option>
-                <option                   
-                  v-if="form.fields[fieldName].type === 'select'"
-                  v-for="(option, index) in form.fields[fieldName].items"
-                  :key="index"
-                  :value="option.value"
-                >
-                {{option.label}}
-                </option>
+                <template v-if="form.fields[fieldName].type === 'select'">
+                  <option value="" default></option>
+                  <option
+                    v-for="(option, index) in form.fields[fieldName].items"
+                    :key="index"
+                    :value="option.value"
+                  >
+                  {{option.label}}
+                  </option>
+                </template>
               </component>
             </div>
           </div>
@@ -45,54 +46,54 @@
 
 <script>
 export default {
-  name: "DynamicForm",
+  name: 'DynamicForm',
   props: {
     api: {
       type: String,
-      required: true,      
+      required: true
     },
     id: {
       type: String,
-      required: true,      
+      required: true
     }
   },
-  data() {
+  data () {
     return {
       form: null,
-      layout: null,
+      layout: [],
       fields: {
         id: null,
         type: null,
         email: null,
         showDescription: false,
-        description: null,
+        description: null
       },
       errors: []
     };
   },
   methods: {
-    fieldAction(behaviors) {
+    fieldAction (behaviors) {
       if (!Array.isArray(behaviors)) return;
       behaviors.map(behavior => {
-        switch(behavior.action) {
-          case 'visibility_toggle': {
-            this.form.fields[behavior.target].visibility = !this.form.fields[behavior.target].visibility;
-            return;
-          }
-          default: {
-            return;
-          }
+        switch (behavior.action) {
+        case 'visibility_toggle': {
+          this.form.fields[behavior.target].visibility = !this.form.fields[behavior.target].visibility;
+          break;
+        }
+        default: {
+          break;
+        }
         }
       });
     },
-    fieldChange(fieldName, fieldType, target) {
+    fieldChange (fieldName, fieldType, target) {
       if (fieldType === 'checkbox') {
-        this.fields[fieldName] = target.checked
+        this.fields[fieldName] = target.checked;
       } else {
         this.fields[fieldName] = target.value;
       }
     },
-    submitForm() {
+    submitForm () {
       this.errors = [];
       Object.keys(this.fields).map(field => {
         const fieldValue = this.fields[field];
@@ -105,9 +106,9 @@ export default {
             if (validator.type && fieldValue) {
               if (validator.type === 'email' && !/.+@.+\./g.test(fieldValue)) {
                 this.errors.push(`Поле ${field} заполнено не верно`);
-              }              
+              }
             }
-          })
+          });
         }
       });
       if (!this.errors.length) {
@@ -115,16 +116,14 @@ export default {
       }
     }
   },
-  mounted() {
+  mounted () {
     fetch(`${this.api}/${this.id}`)
       .then(response => response.json())
       .then(json => {
         const layoutPairs = Object.entries(json.layout);
         const maxRow = Math.max(...layoutPairs.map(el => el[1].row));
-        const maxCol = Math.max(...layoutPairs.map(el => el[1].col));
-        this.layout = [];
         for (let i = 0; i < maxRow; i++) {
-          this.layout[i] = [];
+          this.layout.push([]);
         }
         for (const [name, coordinates] of layoutPairs) {
           this.layout[coordinates.row - 1][coordinates.col - 1] = name;
@@ -132,7 +131,7 @@ export default {
         this.form = json;
       });
   }
-}
+};
 </script>
 
 <style scoped>

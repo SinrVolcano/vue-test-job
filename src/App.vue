@@ -5,14 +5,14 @@
 </template>
 
 <script>
-import DynamicForm from './components/DynamicForm.vue'
+import DynamicForm from './components/DynamicForm.vue';
 
 export default {
   name: 'app',
   components: {
     DynamicForm
   }
-}
+};
 </script>
 
 <style>
