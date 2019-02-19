@@ -2,7 +2,7 @@
   <div>
     <h1>Test Job</h1>
     <form class="form" action="#" v-if="form" @submit.prevent="submitForm">
-      <ul>
+      <ul v-if="errors.length">
         <li v-for="(error, index) in errors" :key="index">{{error}}</li>
       </ul>
       <table>
@@ -74,7 +74,7 @@ export default {
   methods: {
     fieldAction (behaviors) {
       if (!Array.isArray(behaviors)) return;
-      behaviors.map(behavior => {
+      behaviors.forEach(behavior => {
         switch (behavior.action) {
         case 'visibility_toggle': {
           this.form.fields[behavior.target].visibility = !this.form.fields[behavior.target].visibility;
@@ -95,16 +95,16 @@ export default {
     },
     submitForm () {
       this.errors = [];
-      Object.keys(this.fields).map(field => {
+      Object.keys(this.fields).forEach(field => {
         const fieldValue = this.fields[field];
         const validators = this.form.fields[field].validators;
         if (validators && Array.isArray(validators)) {
-          validators.map(validator => {
+          validators.forEach(validator => {
             if (validator.required && !fieldValue) {
               this.errors.push(`Поле ${field} обязательно к заполнению`);
             }
             if (validator.type && fieldValue) {
-              if (validator.type === 'email' && !/.+@.+\./g.test(fieldValue)) {
+              if (validator.type === 'email' && !/.+@.+\..+/g.test(fieldValue)) {
                 this.errors.push(`Поле ${field} заполнено не верно`);
               }
             }
